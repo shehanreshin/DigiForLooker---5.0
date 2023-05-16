@@ -1,0 +1,23 @@
+{% extends 'base_template.html' %}
+
+{% block csslink %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/dia/upload.css') }}">
+{% endblock %}
+
+{% block mainbody %}
+<form method="POST" enctype="multipart/form-data">
+    {{ form.hidden_tag() }} <!--for protection against CSRF attacks-->
+    <div class="upload-card">
+        <div class="upload-title-bar">
+            <div class="upload-title-bar-content">
+                <i class='bx bxs-cloud-upload'></i>
+                <span class="up">up</span>load
+            </div>
+        </div>
+        <div class="upload-body">
+            {{ form.file() }} <br>
+            {{ form.submit() }}
+        </div>
+    </div>
+</form>
+{% endblock %}

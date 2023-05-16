@@ -1,0 +1,100 @@
+{% extends 'base_template.html' %}
+
+{% block csslink %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/dia/hash.css') }}">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.2/pdfmake.min.js"></script>
+{% endblock %}
+
+{% block mainbody %}
+
+{% if session.get('file_name') is not none %}
+    <div id="popup-container" class="hidden">
+        <div id="popup-content">
+        <p>INTEGRITY COMPROMISED!</p>
+        </div>
+        <div id="popup-arrow"></div>
+    </div>  
+    <h1>Current Hashes</h1>
+    <hr><br>
+    <table class="current-hash-table">
+        <thead>
+            <tr>
+                <th>File Name</th>
+                <th>MD5 Hash</th>
+                <th>SHA1 Hash</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for file_name, hashes in current_hash.items() %}
+        {% if file_name in changed_hash %}
+            <tr class="hash-changed">
+        {% else %}
+            <tr>
+        {% endif %}
+            <td>{{ file_name }}</td>
+            <td>{{ hashes["MD5"] }}</td>
+            <td>{{ hashes["SHA1"] }}</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    <br>
+    <button class="pdf-button" onclick="printTableToPDF('.current-hash-table')">Download PDF</button>
+    <br>
+    {% if original_hash %}
+    <h1>Original Hashes</h1>
+    <hr><br>
+    <table class="original-hash-table">
+        <thead>
+            <tr>
+                <th>File Name</th>
+                <th>MD5 Hash</th>
+                <th>SHA1 Hash</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for file_name, hashes in original_hash.items() %}
+        <tr>
+            <td>{{ file_name }}</td>
+            <td>{{ hashes["MD5"] }}</td>
+            <td>{{ hashes["SHA1"] }}</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% endif %}
+    <br>
+    <button class="pdf-button" onclick="printTableToPDF('.original-hash-table')">Download PDF</button>
+    <br>
+    <h1>Changed Hashes</h1>
+    <hr><br>
+    <table class="changed-hash-table">
+        <thead>
+            <tr>
+                <th>File Name</th>
+                <th>MD5 Hash</th>
+                <th>SHA1 Hash</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for file_name, hashes in changed_hash.items() %}
+        {% if file_name in changed_hash %}
+            <tr class="hash-changed"">
+        {% else %}
+            <tr>
+        {% endif %}
+            <td>{{ file_name }}</td>
+            <td>{{ hashes["MD5"] }}</td>
+            <td>{{ hashes["SHA1"] }}</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    <br>
+    <button class="pdf-button" onclick="printTableToPDF('.changed-hash-table')">Download PDF</button>
+    <script src="{{ url_for('static', filename='js/dia/hash.js') }}"></script>
+{% else %}
+    <h1>Hello</h1>
+{% endif%}
+
+{% endblock %}

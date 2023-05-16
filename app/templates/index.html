@@ -1,0 +1,25 @@
+{% extends 'base_template.html' %}
+
+{% block csslink %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
+{% endblock %}
+
+{% block mainbody %}
+<div id="clock">
+    <div id="time">
+        <div class="hour-container">
+            <span id="hour">00</span><span>Hours</span>
+        </div>
+        <div>
+            <span id="minute">00</span><span id="minutes-bottom">minutes</span>
+        </div>
+        <div class="second-container">
+            <span id="second">00</span><span>seconds</span>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block jslink %}
+<script src="{{ url_for('static', filename='js/index.js') }}"></script>
+{% endblock %}

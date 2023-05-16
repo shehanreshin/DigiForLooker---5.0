@@ -1,0 +1,62 @@
+/*-----------------------clock------------------------------------------------------------------------- */
+#clock #time{
+    display: flex;
+}
+#clock #time div{
+    position: relative;
+}
+#clock #time div span{
+    position: relative;
+    width: 150px;
+    height: 130px;
+    background: #039590;
+    color: #F1F1E6;
+    font-weight: 300;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 3em;
+    z-index: 10;
+}
+#clock #time div span:hover{
+    background-color: #028681;
+    transition: all 0.4s ease;
+}
+#clock #time div span:nth-child(2){
+    height: 30px;
+    font-size: 0.7em;
+    letter-spacing: 0.2em;
+    font-weight: 500;
+    box-shadow: none;
+    background-color: #2a404f;
+    text-transform: uppercase;
+}
+#clock #time div:last-child span{
+    background-color: #2F4858;
+}
+#clock #time div:last-child span:hover{
+    background-color: #2a404f;
+    transition: all 0.4s ease;
+}
+#clock #time div:last-child span:nth-child(2){
+    background-color: #028681;
+    border-bottom-right-radius: 15px;
+}
+.hour-container span:nth-child(2){
+    border-bottom-left-radius: 15px;
+}
+#hour{
+    border-top-left-radius: 15px;
+}
+#second{
+    border-top-right-radius: 15px;
+}
+#minute{
+    border-right: 3px #0E2938 solid;
+    border-left: 3px #0E2938 solid;
+}
+#minutes-bottom{
+    border-right: 3px #0E2938 solid;
+    border-left: 3px #0E2938 solid;
+}
+/*-----------------------clock------------------------------------------------------------------------- */

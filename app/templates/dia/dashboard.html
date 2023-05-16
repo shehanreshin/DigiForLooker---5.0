@@ -1,0 +1,21 @@
+{% extends 'base_template.html' %}
+
+{% block csslink %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/dia/dashboard.css') }}">
+<script src="https://kit.fontawesome.com/9398afa8b6.js" crossorigin="anonymous"></script>
+{% endblock %}
+
+{% block mainbody %}
+{% if session['file_name'] is not none %}
+    {% for file in clean_files_list %}
+        <button class="mini-card" id="file-cards">
+            <div class="mini-card-logo"><i class="fa-solid fa-file-circle-plus fa-xl"></i></div>
+            <div class="mini-card-title" id="file_name">{{ file }}</div>
+            <div class="mini-card-details">48 records</div>
+        </button>
+    {% endfor %}
+{% else %}
+    <h1>Hello</h1>
+{% endif%}
+
+{% endblock %}

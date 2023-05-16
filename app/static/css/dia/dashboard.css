@@ -1,0 +1,35 @@
+.mini-card{
+    background-color: #039590;
+    border: none;
+    width: 210px;
+    height: 100px;
+    margin-bottom: 15px;
+    margin-right: 15px;
+    border-radius: 15px;
+    cursor: pointer;
+    transition: all 0.4s ease;
+}
+.mini-card:hover{
+    background-color: #4BBC8E;
+}
+.mini-card-logo{
+    height: 60%;
+    display: block;
+}
+.mini-card-logo i{
+    padding: 30px;
+    font-size: 24px;
+    color: #F1F1E6;
+}
+.mini-card-title{
+    background-color: #2F4858;
+    color: #F1F1E6;
+    overflow: hidden;
+}
+.mini-card-details{
+    background-color: #027773;
+    color: #F1F1E6;
+    width: 100%;
+    border-bottom-left-radius: 15px;
+    border-bottom-right-radius: 15px;
+}
