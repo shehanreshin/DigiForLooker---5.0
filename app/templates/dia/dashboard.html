@@ -8,12 +8,18 @@
 {% block mainbody %}
 {% if session['file_name'] is not none %}
     {% for file in clean_files_list %}
-        <button class="mini-card" id="file-cards">
+        <button class="mini-card" id="file-cards" onclick="redirectToDiaReadcard('{{ file }}')">
             <div class="mini-card-logo"><i class="fa-solid fa-file-circle-plus fa-xl"></i></div>
             <div class="mini-card-title" id="file_name">{{ file }}</div>
-            <div class="mini-card-details">48 records</div>
+            <div class="mini-card-details">{{ files_dict[file]|count_lines - 5 }} rows</div>
         </button>
     {% endfor %}
+    <script>
+        function redirectToDiaReadcard(filename) {
+            var url = "/dia_readcard/" + filename;
+            window.location.href = url;
+        }
+    </script>
 {% else %}
     <h1>Hello</h1>
 {% endif%}

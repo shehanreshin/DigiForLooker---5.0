@@ -13,34 +13,18 @@ import hashlib
 import multiprocessing
 import ujson
 import json
-import mysql.connector
+from flask import Markup
 
-"""
-# connect to MySQL server
-mydb = mysql.connector.connect(
-  host="localhost",
-  user="2^j&k@8mN",
-  password="hRy%3l!z#9T"
-)
+class DiskImage:
+    def __init__(self, file_name):
+        self.file_name = file_name
+    
+    @property
+    def file_path(self):
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+        file_path = os.path.join(base_dir, 'static/files/uploaded', self.file_name)
+        return file_path
 
-
-# create a new database
-mycursor = mydb.cursor()
-mycursor.execute("DROP DATABASE dfl")
-mycursor.execute("CREATE DATABASE dfl")
-
-# connect to the new database
-mydb = mysql.connector.connect(
-  host="localhost",
-  user="2^j&k@8mN",
-  password="hRy%3l!z#9T",
-  database="dfl"
-)
-
-# create a new table to store file_name, md5_hash, and sha1_hash
-mycursor = mydb.cursor()
-mycursor.execute("CREATE TABLE current_hash (file_name VARCHAR(255), md5_hash VARCHAR(32), sha1_hash VARCHAR(40))")
-"""
 extracted_folders = []
 path_to_file = ""
 current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -147,25 +131,39 @@ def getCleanFilesList(folder_path):
     files_list = os.listdir(folder_path)
     clean_files_list = []
     for file in files_list:
-        try:
-            if os.stat(f"{folder_path}/{file}").st_size == 0:
-                pass
-            else:
-                clean_files_list.append(file)
-        except IsADirectoryError:
-            pass           
+        file_path = os.path.join(folder_path, file)
+        if os.path.isfile(file_path) and os.stat(file_path).st_size != 0:
+            clean_files_list.append(file)
     return clean_files_list
 
 def getFilesDict(folder_path, clean_files_list):
     files_dict = {}
     for name in clean_files_list:
         try:
-            file = open(f"{folder_path}/{name}", 'r')
-            f = file.readlines()
-            files_dict[name] = f
+            file_path = f"{folder_path}/{name}"
+            with open(file_path, 'rb') as file:
+                content = file.read()
+            files_dict[name] = content
         except IsADirectoryError:
             pass
     return files_dict    
+
+def count_lines(content):
+    line_count = content.count(b'\n')
+    return line_count
+
+app.jinja_env.filters['count_lines'] = count_lines
+
+@app.route("/dia_dashboard", methods=['GET', "POST"])
+def diaDashboard():
+    if 'file_name' in session and session['file_name'] is not None:
+        global current_dir
+        folder_path = current_dir + "/static/files/downloaded/bulkextractor/"
+        clean_files_list = getCleanFilesList(folder_path)
+        files_dict = getFilesDict(folder_path, clean_files_list)
+        return render_template("dia/dashboard.html", folder_path=folder_path, clean_files_list=clean_files_list, files_dict=files_dict)
+    else:
+        return render_template("dia/dashboard.html")
 
 # Define a function to start the containers
 def start_containers():
@@ -174,61 +172,7 @@ def start_containers():
         container = client.containers.get(container_name)
         container.start()
 
-"""
-lock = threading.Lock()
-class HashThread(threading.Thread):
-    def __init__(self, file_path, original_hash, changed_hash):
-        threading.Thread.__init__(self)
-        self.file_path = file_path
-        self.original_hash = original_hash
-        self.changed_hash = changed_hash
-
-    def run(self):
-        with open(self.file_path, "rb") as f:
-            data = f.read()
-            md5_hash = hashlib.md5(data).hexdigest()
-            sha1_hash = hashlib.sha1(data).hexdigest()
-            file_name = os.path.basename(self.file_path)
-            if file_name in self.original_hash:
-                if self.original_hash[file_name]["MD5"] != md5_hash or self.original_hash[file_name]["SHA1"] != sha1_hash:
-                    with lock:
-                        self.changed_hash[file_name] = {"MD5": md5_hash, "SHA1": sha1_hash}
-            else:
-                with lock:
-                    self.changed_hash[file_name] = {"MD5": md5_hash, "SHA1": sha1_hash}
-"""
-"""
-# Define a function that reads the JSON file and stores the data in a list
-def read_json_file(f, data_dict, start, end):
-    f.seek(start)
-    buffer = f.read(end - start)
-    data = json.loads(buffer)
-    for key, value in data.items():
-        data_dict[key] = value
-
-# Define a function that spawns threads to read the file in chunks
-def read_large_file(f, num_threads=4):
-    file_size = f.seek(0, 2)
-    chunk_size = file_size // num_threads
-
-    threads = []
-    data_dict = {}
-    for i in range(num_threads):
-        start = i * chunk_size
-        end = start + chunk_size
-        if i == num_threads - 1:
-            end = file_size
-        t = threading.Thread(target=read_json_file, args=(f, data_dict, start, end))
-        threads.append(t)
-        t.start()
-
-    for t in threads:
-        t.join()
-
-    return data_dict
-"""
 def generate_hash(folder_path):
-    global mycursor
     file_paths = []
     for dirpath, dirnames, filenames in os.walk(folder_path):
         for filename in filenames:
@@ -244,121 +188,8 @@ def generate_hash(folder_path):
             sha1_hash = hashlib.sha1(data).hexdigest()
             file_name = os.path.basename(file_path)
             current_hash[file_name] = {"MD5": md5_hash, "SHA1": sha1_hash}
-            """
-            sql = "INSERT INTO dfl.current_hash (file_name, md5_hash, sha1_hash) VALUES (%s, %s, %s)"
-            val = (file_name, md5_hash, sha1_hash)
-            mycursor.execute(sql, val)
-            # commit the changes to the database
-            mydb.commit()
-            # print the number of rows that were inserted
-            print(mycursor.rowcount, "rows were inserted.")
-            """
+            
     return current_hash
-
-"""
-def compute_hashes(folder_path, original_hash):
-    file_paths = []
-    for dirpath, dirnames, filenames in os.walk(folder_path):
-        for filename in filenames:
-            file_path = os.path.join(dirpath, filename)
-            file_paths.append(file_path)
-
-    current_hash = {}
-    changed_hash = {}
-    threads = []
-    for file_path in file_paths:
-        thread = HashThread(file_path, original_hash, changed_hash)
-        thread.start()
-        threads.append(thread)
-
-    for thread in threads:
-        thread.join()
-
-    for file_path in file_paths:
-        with open(file_path, "rb") as f:
-            data = f.read()
-            md5_hash = hashlib.md5(data).hexdigest()
-            sha1_hash = hashlib.sha1(data).hexdigest()
-            file_name = os.path.basename(file_path)
-            current_hash[file_name] = {"MD5": md5_hash, "SHA1": sha1_hash}
-
-    # Remove any keys from changed_hash whose values are identical in current_hash
-    with lock:
-        for key, value in list(changed_hash.items()):
-            print(f"{value}, {current_hash[key]}")
-            if value == current_hash[key]:
-                del changed_hash[key]
-                print("deleted")
-                print(changed_hash)
-
-    return current_hash, changed_hash
-"""
-"""
-def update_hashes(folder_path, original_hash_path, changed_hash_path):
-    file_paths = []
-    for dirpath, dirnames, filenames in os.walk(folder_path):
-        for filename in filenames:
-            file_path = os.path.join(dirpath, filename)
-            file_paths.append(file_path)
-
-    with open(original_hash_path, 'r') as f:
-        original_hash = json.load(f)
-
-    changed_hash = {}
-    threads = []
-    for file_path in file_paths:
-        thread = HashThread(file_path, original_hash, changed_hash)
-        threads.append(thread)
-        thread.start()
-
-    for thread in threads:
-        thread.join()
-
-    with open(changed_hash_path, 'w') as f:
-        json.dump(changed_hash, f)
-
-    return changed_hash
-"""
-
-"""
-@app.route('/dia_hash')
-def diaHash():
-    if 'file_name' in session and session['file_name'] is not None:
-        global current_dir
-        folder_path = os.path.join(current_dir, "static", "files")
-        hash_file_path = os.path.join(current_dir, "hashes.json")
-
-        # Try to load the original hash
-        try:
-            with open(hash_file_path, "r") as f:
-                original_hash = json.load(f)
-        except (FileNotFoundError, json.decoder.JSONDecodeError):
-            original_hash = {}
-
-        # If original hash does not exist, create it and save it in hashes.json file
-        if not original_hash:
-            current_hash, changed_hash = compute_hashes(folder_path, original_hash={})
-            with open(hash_file_path, "w") as f:
-                json.dump(current_hash, f)
-            changed_hash = {}
-        else:
-            current_hash, changed_hash = compute_hashes(folder_path, original_hash)
-
-        # Save changed hashes if there are any
-        if changed_hash:
-            with open(os.path.join(current_dir, "changed_hashes.json"), "w") as f:
-                json.dump(changed_hash, f)
-
-        print(changed_hash)
-        return render_template(
-            "dia/hash.html",    
-            current_hash=current_hash,
-            changed_hash=changed_hash,
-            file_name=session.get("file_name"),
-        )
-    else:
-        return render_template('dia/hash.html')
-"""
 
 @app.route('/dia_hash')
 def diaHash():
@@ -413,7 +244,6 @@ def diaUpload():
         file_path = "static/files/uploaded/" + file.filename
         global path_to_file
         path_to_file = file.filename
-        session["file_name"] = file.filename
         # Create threads for both functions and start them
         t1 = threading.Thread(target=uploadExtractBE, args=(file_path,))
         t2 = threading.Thread(target=uploadCarveScalpel, args=(file_path,))
@@ -426,18 +256,8 @@ def diaUpload():
         t2.join()
         t3.join()
         extracted_folders.append(file_path)
+        session["file_name"] = file.filename
     return render_template("dia/upload.html", form=form)
-
-@app.route("/dia_dashboard", methods=['GET', "POST"])
-def diaDashboard():
-    if 'file_name' in session and session['file_name'] is not None:
-        global current_dir
-        folder_path = current_dir + "/static/files/downloaded/bulkextractor/"
-        clean_files_list = getCleanFilesList(folder_path)
-        files_dict = getFilesDict(folder_path, clean_files_list)
-        return render_template("dia/dashboard.html", folder_path=folder_path, clean_files_list=clean_files_list, files_dict=files_dict)
-    else:
-        return render_template("dia/dashboard.html")
 
 @app.route('/dia_gallery')
 def diaGallery():
@@ -466,7 +286,20 @@ def diaGallery():
     else:
         return render_template('dia/gallery.html')
 
-
+@app.route('/dia_readcard/<filename>')
+def readCard(filename):
+    if 'file_name' in session and session['file_name'] is not None:
+        global current_dir
+        file_path = current_dir + "/static/files/downloaded/bulkextractor/" + filename
+        try:
+            file = open(file_path, 'r')
+            answer = file.readlines()
+        except IsADirectoryError:
+            pass
+        else:
+            return render_template('dia/readcard.html', textContent=answer)
+    else:
+        return redirect(url_for('diaUpload'))
 
 @atexit.register
 def deleteExtractedFolders():

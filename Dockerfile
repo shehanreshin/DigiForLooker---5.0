@@ -5,6 +5,8 @@ FROM kalilinux/kali-rolling
 RUN apt update && apt install -y bulk-extractor
 RUN apt install -y magicrescue
 RUN apt install -y scalpel
+RUN apt install -y libimage-exiftool-perl
+
 
 # Create a volume for /data to be mounted from the host
 VOLUME /data
