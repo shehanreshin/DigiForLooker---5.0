@@ -222,7 +222,8 @@ def diaUpload():
     form = UploadFileForm()
     if form.validate_on_submit():
         file = form.file.data
-        file.save(os.path.join(os.path.abspath(os.path.dirname(__file__)),app.config['UPLOAD_FOLDER'],secure_filename(file.filename)))
+        file.save(os.path.join(os.path.abspath(os.path.dirname(__file__)),app.config['UPLOAD_FOLDER'],
+        secure_filename(file.filename)))
         file_path = "static/files/uploaded/" + file.filename
         global path_to_file
         path_to_file = file.filename

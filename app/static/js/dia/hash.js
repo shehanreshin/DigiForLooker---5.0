@@ -10,11 +10,11 @@ function printTableToPDF(tableClass) {
     else if (tableClass == ".changed-hash-table") {
       tableName = "Changed Hashes";
     }
-    // Retrieve table content
+    //Retrieve table content
     var table = document.querySelector(tableClass);
     var rows = table.rows;
   
-    // Convert table rows to array of arrays
+    //Convert table rows to array of arrays
     var dataRows = [];
     for (var i = 0; i < rows.length; i++) {
       var rowData = [];
@@ -24,7 +24,7 @@ function printTableToPDF(tableClass) {
       dataRows.push(rowData);
     }
   
-    // Create document definition
+    //Create document definition
     var docDefinition = {
       pageSize: {
         width: 1000,
@@ -54,7 +54,7 @@ function printTableToPDF(tableClass) {
       }
     };
   
-    // Load Roboto font
+    //Load Roboto font
     var fonts = {
       Roboto: {
         normal: 'https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.66/fonts/Roboto/Roboto-Regular.ttf',
@@ -64,10 +64,10 @@ function printTableToPDF(tableClass) {
       }
     };
   
-    // Create PDF document
+    //Create PDF document
     var pdfDocGenerator = pdfMake.createPdf(docDefinition, null, fonts);
   
-    // Download PDF file
+    //Download PDF file
     pdfDocGenerator.download(tableClass + '.pdf');
   }
 
@@ -88,13 +88,12 @@ function printTableToPDF(tableClass) {
   window.addEventListener("hashes-changed", showPopupIfNecessary);
   
   popupContainer.addEventListener("click", function() {
-    // Hide the popup container by adding the "hidden" class
+    //Hide the popup container by adding the "hidden" class
     popupContainer.classList.add("hidden");
     const changedHashTable = document.querySelector(".changed-hash-table");
     changedHashTable.scrollIntoView({ behavior: "smooth" });
   });
   
-  // Add this line to remove the "visible" class when the popup is clicked
   popupContainer.addEventListener("click", function() {
     popupContainer.classList.remove("visible");
   });
