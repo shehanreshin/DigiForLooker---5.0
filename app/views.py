@@ -32,25 +32,19 @@ original_hash = {}
 
 def uploadExtractBE(file_path):
     container_name = "kalibe"
-    # Specify the path to the file you want to extract using Bulk Extractor on your local machine
     path_to_extract = file_path
     folder_name = path_to_extract.split("/")
     folder_name = folder_name[-1]
 
-    # Specify the output directory for the extracted files within the container
     output_directory = "/output/"
 
-    # Create the output directory if it does not exist
     if not os.path.exists(output_directory):
         os.makedirs(output_directory)
 
-    # Specify the full path to the Bulk Extractor executable within the Docker container
     bulk_extractor_path = "/usr/bin/bulk_extractor"
 
-    # Build the Docker command to run Bulk Extractor with mounted volume
     docker_command = f"docker exec {container_name} {bulk_extractor_path} -o {output_directory} /data/{os.path.basename(path_to_extract)}"
 
-    # Run the Docker command
     subprocess.run(docker_command, shell=True)
 
     copy_command = f"docker cp {container_name}:{output_directory} app/static/files/downloaded/bulkextractor"
@@ -64,25 +58,17 @@ def uploadExtractBE(file_path):
 
 def uploadCarveScalpel(file_path):
     container_name = "kalisc"
-    # Specify the path to the file you want to extract using Bulk Extractor on your local machine
     path_to_extract = file_path
     folder_name = path_to_extract.split("/")
     folder_name = folder_name[-1]
 
-    # Specify the output directory for the extracted files within the container
     output_directory = "/output/"
 
-    # Create the output directory if it does not exist
     if not os.path.exists(output_directory):
         os.makedirs(output_directory)
 
-    # Specify the full path to the Bulk Extractor executable within the Docker container
     scalpel_path = "/usr/bin/scalpel"
-
-    # Build the Docker command to run Bulk Extractor with mounted volume
     docker_command = f"docker exec {container_name} {scalpel_path} -c /etc/scalpel/scalpel.conf -o {output_directory} /data/{os.path.basename(path_to_extract)}"
-
-    # Run the Docker command
     subprocess.run(docker_command, shell=True)
 
     copy_command = f"docker cp {container_name}:{output_directory} app/static/files/downloaded/scalpel"
@@ -96,26 +82,22 @@ def uploadCarveScalpel(file_path):
 
 def uploadCarveMR(file_path):
     container_name = "kalimr"
-    # Specify the path to the file you want to extract using Bulk Extractor on your local machine
     path_to_extract = file_path
     folder_name = path_to_extract.split("/")
     folder_name = folder_name[-1]
 
-    # Specify the output directory for the extracted files within the container
+    #The output directory for the extracted files within the container
     output_directory = "/output/"
 
-    # Create the output directory if it does not exist
+    #To create the output directory if it does not exist
     if not os.path.exists(output_directory):
         os.makedirs(output_directory)
 
-    # Specify the full path to the Bulk Extractor executable within the Docker container
     scalpel_path = "/usr/bin/magicrescue"
 
-    # Build the Docker command to run Bulk Extractor with mounted volume
+    #Docker command to run Magic Rescue with mounted volume
     docker_command = f"docker exec {container_name} {scalpel_path} -r jpeg-exif -r jpeg-jfif -r png -d {output_directory} -M -io /data/{os.path.basename(path_to_extract)}"
 
-    # Run the Docker command
-    #subprocess.run(f"docker exec kalimr mkdir /output/{folder_name}", shell=True)
     subprocess.run(docker_command, shell=True)
 
     copy_command = f"docker cp {container_name}:{output_directory} app/static/files/downloaded/magicrescue"
@@ -165,7 +147,7 @@ def diaDashboard():
     else:
         return render_template("dia/dashboard.html")
 
-# Define a function to start the containers
+
 def start_containers():
     client = docker.from_env()
     for container_name in ["kalibe", "kalimr", "kalisc"]:
@@ -244,14 +226,14 @@ def diaUpload():
         file_path = "static/files/uploaded/" + file.filename
         global path_to_file
         path_to_file = file.filename
-        # Create threads for both functions and start them
+        #Creating threads for both functions and starting them
         t1 = threading.Thread(target=uploadExtractBE, args=(file_path,))
         t2 = threading.Thread(target=uploadCarveScalpel, args=(file_path,))
         t3 = threading.Thread(target=uploadCarveMR, args=(file_path,))
         t1.start()
         t2.start()
         t3.start()
-        # Wait for both threads to finish before continuing
+        #Waiting for both threads to finish before continuing
         t1.join()
         t2.join()
         t3.join()
@@ -264,18 +246,18 @@ def diaGallery():
     if 'file_name' in session and session['file_name'] is not None:
         global current_dir
         clean_images_list = []
-        image_dir = current_dir + "/static/files/downloaded/magicrescue/"  # replace with your own image directory
+        image_dir = current_dir + "/static/files/downloaded/magicrescue/"
         image_list = os.listdir(image_dir)
-        image_list = [f for f in image_list if f.endswith('.jpg') or f.endswith('.png')]  # filter for image files
+        image_list = [f for f in image_list if f.endswith('.jpg') or f.endswith('.png')]  #filter for image files
         for image in image_list:
             try:
-                # Open image file
+                #Open image file
                 image_path = current_dir + "/static/files/downloaded/magicrescue/" + image
                 with Image.open(image_path) as img:
-                    # Check if image can be displayed
+                    #Check if image can be displayed
                     img.verify()
             except IOError:
-                # Image file cannot be opened or displayed
+                #Image file cannot be opened or displayed
                 print("Image file cannot be displayed.")
             except SyntaxError:
                 print("Image file cannot be displayed.")
@@ -304,10 +286,9 @@ def readCard(filename):
 @atexit.register
 def deleteExtractedFolders():
     global extracted_folders
-    container_name = "kalibe"
     global path_to_file
     file_name = path_to_file
-    subprocess.run(f"docker exec {container_name} rm -rf /output", shell=True)    
+    subprocess.run(f"sudo docker exec kalibe rm -rf /output", shell=True)    
     subprocess.run(f"sudo docker exec kalisc rm -rf /output", shell=True)
     subprocess.run(f"sudo docker exec kalimr rm -rf /output", shell=True)
     subprocess.run(f"sudo rm -rf {os.path.abspath(os.path.dirname(__file__))}/static/files/downloaded/bulkextractor", shell=True)
@@ -316,14 +297,6 @@ def deleteExtractedFolders():
     last_command = f"find {os.path.abspath(os.path.dirname(__file__))}/static/files/uploaded/ -type f ! -name '.gitkeep' -exec rm " + "{} +"
     subprocess.run(f"sudo rm -f {os.path.abspath(os.path.dirname(__file__))}/original_hashes.json", shell=True)
     subprocess.run(last_command, shell=True)
-    # Delete extracted folders in local folder when flask server is stopped
-    #for folder_path in extracted_folders:
-        #be_folder_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), "static/files/downloaded/bulkextractor")
-        #shutil.rmtree(be_folder_path)
-        #sc_folder_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), "static/files/downloaded/scalpel")
-        #shutil.rmtree(sc_folder_path)
-        #mr_folder_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), "static/files/downloaded/magicrescue")
-        #shutil.rmtree(mr_folder_path)
 
 @app.before_first_request
 def before_first_request():
