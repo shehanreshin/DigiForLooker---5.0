@@ -1,0 +1,29 @@
+{% extends 'base_template.html' %}
+
+{% block csslink %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/mda/dlllist.css') }}">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.2/pdfmake.min.js"></script>
+{% endblock %}
+
+{% block mainbody %}
+
+<div id="popup-container2">
+  <div id="popup-content2">
+    <p id="popup-text2">Hover over the name of the DLL to get a short description of it</p>
+  </div>
+  <div id="popup-arrow2"></div>
+</div>
+
+{% include 'mda/data/dlllist_data.html' %}
+
+<div id="popup-container" class="hidden">
+  <div id="popup-content">
+    <p id="popup-text"></p>
+  </div>
+  <div id="popup-arrow"></div>
+</div>
+<br>
+<button class="pdf-button" onclick="printTableToPDF('.current-hash-table')">Download PDF</button>
+
+<script src="{{ url_for('static', filename='js/mda/dlllist.js') }}"></script>
+{% endblock %}

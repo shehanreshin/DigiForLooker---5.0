@@ -151,7 +151,7 @@ hr{
   }
   
   #popup-container.visible {
-    right: 0; /* Move the container into view */
+    right: 0;
   }
   
   #popup-content {

@@ -1,0 +1,167 @@
+{% extends 'base_template.html' %}
+
+{% block csslink %}
+<style>
+    h1{
+    color: #039590;
+    font-weight: 300;
+    }
+
+    table {
+        border-collapse: collapse;
+        width: 100%;
+    }
+    table td{
+        max-width: 22vw;
+        word-break: break-all;
+    }
+
+    table td:nth-child(1){
+    max-width: 5vw;
+    word-wrap: break-word;
+    }
+
+    .current-hash-table{
+        border-collapse: collapse;
+        font-size: 0.9em;
+        font-family: sans-serif;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+    }
+    .current-hash-table thead tr{
+        background-color: #039590;
+        color: #F1F1E6;
+        text-align: left;
+    }
+    .current-hash-table th,
+    .current-hash-table td{
+        padding: 12px 15px;
+    }
+    .current-hash-table tbody tr{
+        border-bottom: 2px solid #039590;
+    }
+
+    .current-hash-table tbody tr{
+        background-color: #2F4858;
+        color: #F1F1E6;
+    }
+    .pdf-button{
+        align-items: center;
+        background-color: #039590;
+        border: 0;
+        border-radius: 100px;
+        box-sizing: border-box;
+        color: #F1F1E6;
+        cursor: pointer;
+        display: inline-flex;
+        font-family: -apple-system, system-ui, system-ui, "Segoe UI", Roboto, "Helvetica Neue", "Fira Sans", Ubuntu, Oxygen, "Oxygen Sans", Cantarell, "Droid Sans", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Lucida Grande", Helvetica, Arial, sans-serif;
+        font-size: 16px;
+        font-weight: 600;
+        justify-content: center;
+        line-height: 20px;
+        max-width: 480px;
+        min-height: 40px;
+        overflow: hidden;
+        padding: 0px;
+        padding-left: 20px;
+        padding-right: 20px;
+        text-align: center;
+        touch-action: manipulation;
+        transition: background-color 0.167s cubic-bezier(0.4, 0, 0.2, 1) 0s, box-shadow 0.167s cubic-bezier(0.4, 0, 0.2, 1) 0s, color 0.167s cubic-bezier(0.4, 0, 0.2, 1) 0s;
+        user-select: none;
+        -webkit-user-select: none;
+        vertical-align: middle;
+        margin-bottom: 20px;
+        }
+
+        .pdf-button:hover{ 
+        background-color: #028681;
+        color: #F1F1E6;
+        }
+</style>
+<script src="https://kit.fontawesome.com/9398afa8b6.js" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.2/pdfmake.min.js"></script>
+{% endblock %}
+
+{% block mainbody %}
+{% if session['file_name'] is not none %}
+
+    {% include 'mda/data/' + filename[:-4] + '.html' %}
+    <br>
+    <button class="pdf-button" onclick="printTableToPDF('.current-hash-table')">Download PDF</button>
+    <script>
+        function printTableToPDF(tableClass) {
+        var now = new Date();
+        var currentTime = now.toLocaleString();
+        var tableName = "{{ filename[:-4] }}";
+        var table = document.querySelector(tableClass);
+        var rows = table.rows;
+
+        var numColumns = rows[0].cells.length;
+
+        var dataRows = [];
+        for (var i = 0; i < rows.length; i++) {
+            var rowData = [];
+            for (var j = 0; j < numColumns; j++) {
+            rowData.push(rows[i].cells[j].textContent);
+            }
+            dataRows.push(rowData);
+        }
+
+        
+        function getColumnWidths(numColumns) {
+            var columnWidths = [];
+            for (var i = 0; i < numColumns; i++) {
+            columnWidths.push('auto');
+            }
+            return columnWidths;
+        }
+
+        
+        var docDefinition = {
+            pageSize: {
+            width: 1000,
+            height: 842
+            },
+            pageOrientation: "landscape",
+            content: [
+            { text: currentTime + ' - ' + tableName, style: 'header' },
+            {
+                table: {
+                headerRows: 1,
+                widths: getColumnWidths(numColumns),
+                body: dataRows
+                }
+            }
+            ],
+            styles: {
+            header: {
+                fontSize: 18,
+                bold: true,
+                margin: [0, 0, 0, 10]
+            }
+            },
+            defaultStyle: {
+            font: 'Roboto'
+            }
+        };
+
+        
+        var fonts = {
+            Roboto: {
+            normal: 'https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.66/fonts/Roboto/Roboto-Regular.ttf',
+            bold: 'https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.66/fonts/Roboto/Roboto-Medium.ttf',
+            italics: 'https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.66/fonts/Roboto/Roboto-Italic.ttf',
+            bolditalics: 'https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.66/fonts/Roboto/Roboto-MediumItalic.ttf'
+            }
+        };
+
+        var pdfDocGenerator = pdfMake.createPdf(docDefinition, null, fonts);
+
+        pdfDocGenerator.download(tableName + '.pdf');
+        }
+    </script>
+{% else %}
+    <h1>Hello</h1>
+{% endif%}
+
+{% endblock %}

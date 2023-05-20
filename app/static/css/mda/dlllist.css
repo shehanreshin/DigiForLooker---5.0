@@ -1,0 +1,144 @@
+h1{
+    color: #039590;
+    font-weight: 300;
+}
+
+table {
+    border-collapse: collapse;
+    width: 100%;
+}
+table td{
+    max-width: 22vw;
+    word-wrap: break-word;
+}
+
+table td:nth-child(1){
+  max-width: 5vw;
+  word-wrap: break-word;
+}
+
+.current-hash-table{
+    border-collapse: collapse;
+    font-size: 0.9em;
+    font-family: sans-serif;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+}
+.current-hash-table thead tr {
+    background-color: #039590;
+    color: #F1F1E6;
+    text-align: left;
+}
+.current-hash-table th,
+.current-hash-table td {
+    padding: 12px 15px;
+}
+.current-hash-table tbody tr {
+    border-bottom: 2px solid #039590;
+}
+
+.current-hash-table tbody tr {
+    background-color: #2F4858;
+    color: #F1F1E6;
+}
+.pdf-button {
+  align-items: center;
+  background-color: #039590;
+  border: 0;
+  border-radius: 100px;
+  box-sizing: border-box;
+  color: #F1F1E6;
+  cursor: pointer;
+  display: inline-flex;
+  font-family: -apple-system, system-ui, system-ui, "Segoe UI", Roboto, "Helvetica Neue", "Fira Sans", Ubuntu, Oxygen, "Oxygen Sans", Cantarell, "Droid Sans", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Lucida Grande", Helvetica, Arial, sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  justify-content: center;
+  line-height: 20px;
+  max-width: 480px;
+  min-height: 40px;
+  overflow: hidden;
+  padding: 0px;
+  padding-left: 20px;
+  padding-right: 20px;
+  text-align: center;
+  touch-action: manipulation;
+  transition: background-color 0.167s cubic-bezier(0.4, 0, 0.2, 1) 0s, box-shadow 0.167s cubic-bezier(0.4, 0, 0.2, 1) 0s, color 0.167s cubic-bezier(0.4, 0, 0.2, 1) 0s;
+  user-select: none;
+  -webkit-user-select: none;
+  vertical-align: middle;
+  margin-bottom: 20px;
+}
+
+.pdf-button:hover{ 
+  background-color: #028681;
+  color: #F1F1E6;
+}
+
+hr{
+    border: 3px solid #039590;
+}
+
+#popup-container {
+  position: fixed;
+  top: 50%;
+  transform: translateY(-50%);
+  right: 0px; 
+  width: 400px;
+  height: 400px;
+  background-color: #039590;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+  border-radius: 6px;
+  transition: right 0.3s ease-in-out;
+  color: #F1F1E6;
+  font-size: 1.3em;
+  z-index: 9999;
+}
+
+#popup-container.hidden {
+  display: none;
+}
+
+#popup-content {
+  padding: 10px;
+}
+
+#popup-arrow {
+  position: absolute;
+  top: 50%;
+  right: -10px;
+  width: 20px;
+  height: 20px;
+  transform: translateY(-50%) rotate(45deg);
+  background-color: #2F4858;
+  box-shadow: -2px -2px 4px rgba(0, 0, 0, 0.2);
+}
+
+#popup-container2 {
+  position: fixed;
+  top: 30%;
+  right: 0;
+  transform: translateY(-50%);
+  width: 300px;
+  height: 110px;
+  background-color: #039590;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+  border-radius: 6px;
+  transition: right 0.3s ease-in-out;
+  color: #F1F1E6;
+  font-size: 1.3em;
+}
+
+#popup-content2 {
+  padding: 10px;
+}
+
+#popup-arrow2 {
+  position: absolute;
+  top: 50%;
+  right: -10px;
+  width: 20px;
+  height: 20px;
+  transform: translateY(-50%) rotate(45deg);
+  background-color: #2F4858;
+  box-shadow: -2px -2px 4px rgba(0, 0, 0, 0.2);
+}
