@@ -4,7 +4,9 @@ from flask_wtf import FlaskForm
 from wtforms import FileField, SubmitField
 from werkzeug.utils import secure_filename
 import os, re, subprocess, atexit, shutil, threading, docker, hashlib, multiprocessing
-import ujson, json, requests, openai, time
+import ujson, json, requests, openai, time, glob, imagehash, concurrent.futures
+import numpy as np
+from skimage.metrics import structural_similarity as ssim
 from PIL import Image
 from flask import Markup
 
@@ -464,6 +466,113 @@ def readCard(filename):
             pass
         else:
             return render_template('dia/readcard.html', textContent=answer)
+    else:
+        return redirect(url_for('diaUpload'))
+
+@app.route('/dia_analytics')
+def diaAnalytics():
+    if 'file_name' in session and session['file_name'] is not None:
+        return render_template('dia/analytics.html')
+    else:
+        return redirect(url_for('diaUpload'))
+
+def comparePHash(folder1, folder2):
+    image_files1 = glob.glob(os.path.join(folder1, '**', '*'), recursive=True)
+    image_files2 = os.listdir(folder2)
+
+    similarity_array = []
+
+    for file1 in image_files1:
+        if os.path.isfile(file1):
+            try:
+                image1 = Image.open(file1)
+                hash1 = imagehash.average_hash(image1)
+            except (Image.UnidentifiedImageError, OSError):
+                continue
+            else:
+                for file2 in image_files2:
+                    try:
+                        image2 = Image.open(os.path.join(folder2, file2))
+                        hash2 = imagehash.average_hash(image2)
+                    except (Image.UnidentifiedImageError, OSError):
+                        continue
+                    else:
+                        similarity = round((1 - (hash1 - hash2) / len(hash1.hash) ** 2)*100)
+                        file2_path = f"{os.path.join(folder2, file2)}"
+                        if similarity >= 90:
+                            similarity_array.append([file1, file2_path, similarity])
+
+
+    return similarity_array
+
+@app.route('/dia_phash')
+def diaPHash():
+    if 'file_name' in session and session['file_name'] is not None:
+        global current_dir
+        project_path = current_dir
+        folder_path1 = f"{current_dir}/static/files/downloaded/scalpel/"
+        folder_path2 = f"{current_dir}/static/files/downloaded/magicrescue/"
+        similarity_array = comparePHash(folder_path1, folder_path2)
+        return render_template('dia/phash.html', similarity_array=similarity_array, project_path=project_path)
+    else:
+        return redirect(url_for('diaUpload'))
+
+def compareSSIM(folder1, folder2):
+    image_files1 = [f for f in glob.glob(os.path.join(folder1, '**', '*'), recursive=True) if os.path.isfile(f)]
+    image_files2 = [f for f in glob.glob(os.path.join(folder2, '**', '*'), recursive=True) if os.path.isfile(f)]
+
+    similarity_array = []
+
+    def compare_images(file1, file2):
+        try:
+            image1 = Image.open(file1)
+        except (Image.UnidentifiedImageError, OSError):
+            return
+        else:
+            try:
+                image2 = Image.open(file2)
+            except (Image.UnidentifiedImageError, OSError):
+                return
+            else:
+                try:
+                    #Resizing the image pre-processing
+                    width, height = image1.size
+                    image2 = image2.resize((width, height))
+                except (ValueError, OSError):
+                    return
+                else:
+                    try:
+                        #Convert to grayscale for the calculations
+                        image1_gray = image1.convert("L")
+                        image2_gray = image2.convert("L")
+                    except (ValueError, OSError):
+                        return
+                    else:
+                        similarity = ssim(np.array(image1_gray), np.array(image2_gray)) * 100
+
+                        if similarity >= 90:
+                            similarity_array.append([file1, file2, similarity])
+
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        futures = []
+        for file1 in image_files1:
+            for file2 in image_files2:
+                futures.append(executor.submit(compare_images, file1, file2))
+
+        for future in concurrent.futures.as_completed(futures):
+            future.result()
+
+    return similarity_array
+
+@app.route('/dia_ssim')
+def diaSSIM():
+    if 'file_name' in session and session['file_name'] is not None:
+        global current_dir
+        project_path = current_dir
+        folder_path1 = f"{current_dir}/static/files/downloaded/scalpel/"
+        folder_path2 = f"{current_dir}/static/files/downloaded/magicrescue/"
+        similarity_array = compareSSIM(folder_path1, folder_path2)
+        return render_template('dia/phash.html', similarity_array=similarity_array, project_path=project_path)
     else:
         return redirect(url_for('diaUpload'))
 

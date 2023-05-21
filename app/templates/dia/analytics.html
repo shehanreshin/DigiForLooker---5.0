@@ -1,0 +1,36 @@
+{% extends 'base_template.html' %}
+
+{% block csslink %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/dia/analytics.css') }}">
+{% endblock %}
+
+{% block mainbody %}
+{% if session['file_name'] is not none %}
+
+    <button class="mini-card" id="file-cards" onclick="redirectToPHash()">
+        <div class="mini-card-logo"><i class="fa-solid fa-equals"></i></div>
+        <div class="mini-card-title" id="file_name">Perceptual Hashing</div>
+        <div class="mini-card-details">This generates a hash of each image based on their visual content, compares them to each other, and returns the pairs that have a similarity of 90% or higher</div>
+    </button>
+
+    <button class="mini-card" id="file-cards" onclick="redirectToSSIM()">
+        <div class="mini-card-logo"><i class="fa-solid fa-images"></i></div>
+        <div class="mini-card-title" id="file_name">SSIM</div>
+        <div class="mini-card-details">This compares factors in the images such as contrast and luminance, and returns the pairs that have a similarity of 90% or higher</div>
+    </button>
+
+    <script>
+        function redirectToPHash() {
+            var url = "/dia_phash";
+            window.location.href = url;
+        }
+        function redirectToSSIM() {
+            var url = "/dia_ssim";
+            window.location.href = url;
+        }
+    </script>
+
+{% else %}
+    <h1>Hello</h1>
+{% endif%}
+{% endblock %}

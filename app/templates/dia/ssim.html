@@ -1,0 +1,28 @@
+{% extends 'base_template.html' %}
+
+{% block csslink %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/dia/phash.css') }}">
+{% endblock %}
+
+{% block mainbody %}
+{% if session['file_name'] is not none %}
+
+    {% for array in similarity_array %}
+        <div class="title">Similarity: {{ array[2] }}%</div>
+        <div class="image-container">
+            <div class="image-box">
+                <img class="similar-image" src="{{ array[0].replace(project_path, '') }}" alt="{{ array[0] }}">
+                <div class="image-overlay">{{ array[0] }}</div>
+            </div>
+            <div class="image-box">
+                <img class="similar-image" src="{{ array[1].replace(project_path, '') }}" alt="{{ array[1] }}">
+                <div class="image-overlay">{{ array[1] }}</div>
+            </div>
+        </div>
+        <br><br>
+    {% endfor %}
+
+{% else %}
+    <h1>Hello</h1>
+{% endif%}
+{% endblock %}

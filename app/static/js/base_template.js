@@ -17,10 +17,10 @@ var btn = document.getElementById('btn')
 
 function leftClick() {
 	btn.style.left = '0'
-  window.location.href = '/mda_dashboard';
+  window.location.href = '/dia_dashboard';
 }
 
 function rightClick() {
 	btn.style.left = '80px'
-  window.location.href = '/dia_dashboard';
+  window.location.href = '/mda_dashboard';
 }
