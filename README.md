@@ -60,7 +60,7 @@ docker ps -a
 ```
 
 If all 3 of your containers are running, you are good to go. If not, you might need to delete the
-containers and retry the installation process. Now you can enter the command
+containers and retry the installation process. Now, go to app/views.py and paste the OpenAI API key. You can generate this from https://platform.openai.com/account/api-keys. Save it and then you can enter the command
 
 ```
 python3 run.py

@@ -4,12 +4,12 @@ from flask_wtf import FlaskForm
 from wtforms import FileField, SubmitField
 from werkzeug.utils import secure_filename
 import os, re, subprocess, atexit, shutil, threading, docker, hashlib, multiprocessing
-import ujson, json, requests, openai
+import ujson, json, requests, openai, time
 from PIL import Image
 from flask import Markup
 
 #Insert your Chat GPT API here
-openai.api_key = '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'
+openai.api_key = 'addyourapikeyhere'
 class DiskImage:
     def __init__(self, file_name):
         self.file_name = file_name
@@ -42,11 +42,16 @@ def uploadVol(file_path):
         docker_command = f"sudo docker exec kalisc python3 /vol/vol.py -f /data/{file_name} {banner} > {current_dir}/static/files/downloaded/volatility/{banner}.txt"
         subprocess.run(docker_command, shell=True)
 
-def check_single_line(file_path):
+def checkSingleLine(file_path):
     with open(file_path, 'r') as file:
         file_content = file.read().strip()
     single_line = "Volatility 3 Framework 2.4.1"
     return file_content == single_line
+
+def checkUnsatisfiedRequirementPlugins(file_path):
+    with open(file_path, 'r') as file:
+        file_content = file.read().strip()
+    return "Unsatisfied requirement plugins" in file_content
 
 def getCleanVolList():
     global current_dir
@@ -57,7 +62,7 @@ def getCleanVolList():
         if file == ".gitkeep":
             continue
         file_path = os.path.join(folder_path, file)
-        if check_single_line(file_path) != True:
+        if checkSingleLine(file_path) != True and checkUnsatisfiedRequirementPlugins(file_path) != True:
             clean_files_list.append(file)
     return clean_files_list
 
@@ -311,7 +316,7 @@ def diaDashboard():
         files_dict = getFilesDict(folder_path, clean_files_list)
         return render_template("dia/dashboard.html", folder_path=folder_path, clean_files_list=clean_files_list, files_dict=files_dict)
     else:
-        return render_template("dia/dashboard.html")
+        return redirect(url_for('diaUpload'))
 
 
 def start_containers():
@@ -371,7 +376,7 @@ def diaHash():
         file_name=session.get("file_name"),
         )
     else:
-        return render_template('dia/hash.html')
+        return redirect(url_for('diaUpload'))
 
 class UploadFileForm(FlaskForm):
     file = FileField("File")
@@ -385,6 +390,9 @@ def index():
 def diaUpload():
     form = UploadFileForm()
     if form.validate_on_submit():
+        cleanseProject()
+        initializeProject()
+        time.sleep(5)  # Wait for 5 seconds
         file = form.file.data
         file.save(os.path.join(os.path.abspath(os.path.dirname(__file__)),app.config['UPLOAD_FOLDER'],
         secure_filename(file.filename)))
@@ -442,7 +450,7 @@ def diaGallery():
 
         return render_template('dia/gallery.html', images=image_list, clean_images=clean_images_list)
     else:
-        return render_template('dia/gallery.html')
+        return redirect(url_for('diaUpload'))
 
 @app.route('/dia_readcard/<filename>')
 def readCard(filename):
@@ -464,8 +472,12 @@ def readCard(filename):
 
 #-----------------------------------------------------------------Project Folder & Server Maintainence-----------------------------------------------------------------
 
-@atexit.register
-def deleteExtractedFolders():
+def initializeProject():
+    subprocess.run(f"docker exec kalibe mkdir /output/", shell=True)
+    subprocess.run(f"docker exec kalisc mkdir /output/", shell=True)
+    subprocess.run(f"docker exec kalimr mkdir /output/", shell=True)
+
+def cleanseProject():
     global extracted_folders
     global path_to_file
     file_name = path_to_file
@@ -475,17 +487,18 @@ def deleteExtractedFolders():
     subprocess.run(f"sudo rm -rf {os.path.abspath(os.path.dirname(__file__))}/static/files/downloaded/bulkextractor", shell=True)
     subprocess.run(f"sudo rm -rf {os.path.abspath(os.path.dirname(__file__))}/static/files/downloaded/scalpel", shell=True)
     subprocess.run(f"sudo rm -rf {os.path.abspath(os.path.dirname(__file__))}/static/files/downloaded/magicrescue", shell=True)
-    last_command = f"find {os.path.abspath(os.path.dirname(__file__))}/static/files/uploaded/ -type f ! -name '.gitkeep' -exec rm " + "{} +"
-    subprocess.run(last_command, shell=True)
+    subprocess.run(f"find {os.path.abspath(os.path.dirname(__file__))}/static/files/uploaded/ -type f ! -name '.gitkeep' -exec rm " + "{} +" , shell=True)
     subprocess.run(f"find {os.path.abspath(os.path.dirname(__file__))}/static/files/downloaded/volatility/ -type f ! -name '.gitkeep' -exec rm " + "{} +" , shell=True)
     subprocess.run(f"find {os.path.abspath(os.path.dirname(__file__))}/templates/mda/data/ -type f ! -name '.gitkeep' -exec rm " + "{} +" , shell=True)
+
+@atexit.register
+def deleteExtractedFolders():
+    cleanseProject()
 
 @app.before_first_request
 def before_first_request():
     start_containers()
-    subprocess.run(f"docker exec kalibe mkdir /output/", shell=True)
-    subprocess.run(f"docker exec kalisc mkdir /output/", shell=True)
-    subprocess.run(f"docker exec kalimr mkdir /output/", shell=True)
+    initializeProject()
     session['file_name'] = None
 
 #---------------------------------x---------------------x-----------Project Folder & Server Maintainence----------x---------------------x----------------------------------
