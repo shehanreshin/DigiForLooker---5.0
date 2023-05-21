@@ -7,3 +7,4 @@ docker build -t dfl_docker .
 docker run -d --name kalibe -v "$final_dir:/data" -v "$vol_dir:/vol" dfl_docker
 docker run -d --name kalisc -v "$final_dir:/data" -v "$vol_dir:/vol" dfl_docker
 docker run -d --name kalimr -v "$final_dir:/data" -v "$vol_dir:/vol" dfl_docker
+docker cp /home/reshin/Documents/GitHub/DigiForLooker---5.0/scalpel.conf kalisc:/etc/scalpel/scalpel.conf

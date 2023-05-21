@@ -60,3 +60,38 @@
     border-left: 3px #0E2938 solid;
 }
 /*-----------------------clock------------------------------------------------------------------------- */
+.cpu-usage, .memory-usage, .disk-space, .network-activity {
+    margin: 0 auto;
+    width: 400px;
+  }
+  
+  .cpu-usage h2 {
+    margin-top: 0;
+  }
+  
+  .cpu-usage p, .memory-usage p, .disk-space p, .network-activity p {
+    margin-bottom: 0;
+  }
+  
+  #cpu-usage-percentage {
+    font-size: 20px;
+    font-weight: bold;
+  }
+  
+  #memory-usage-percentage {
+    font-size: 20px;
+    font-weight: bold;
+  }
+  
+  #disk-space-percentage {
+    font-size: 20px;
+    font-weight: bold;
+  }
+  
+  #network-activity-bytes-recv {
+    font-size: 16px;
+  }
+  
+  #network-activity-bytes-sent {
+    font-size: 16px;
+  }
