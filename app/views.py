@@ -431,26 +431,9 @@ def diaUpload():
 def diaGallery():
     if 'file_name' in session and session['file_name'] is not None:
         global current_dir
-        clean_images_list = []
-        image_dir = current_dir + "/static/files/downloaded/magicrescue/"
-        image_list = os.listdir(image_dir)
-        image_list = [f for f in image_list if f.endswith('.jpg') or f.endswith('.png')]  #filter for image files
-        for image in image_list:
-            try:
-                #Open image file
-                image_path = current_dir + "/static/files/downloaded/magicrescue/" + image
-                with Image.open(image_path) as img:
-                    #Check if image can be displayed
-                    img.verify()
-            except IOError:
-                #Image file cannot be opened or displayed
-                print("Image file cannot be displayed.")
-            except SyntaxError:
-                print("Image file cannot be displayed.")
-            else:
-                clean_images_list.append(image)
-
-        return render_template('dia/gallery.html', images=image_list, clean_images=clean_images_list)
+        image_dir = current_dir + "/static/files/downloaded/"
+        clean_images_list = getCleanImages(getAllImages(image_dir))
+        return render_template('dia/gallery.html', clean_images=clean_images_list, project_path=current_dir)
     else:
         return redirect(url_for('diaUpload'))
 
@@ -573,6 +556,59 @@ def diaSSIM():
         folder_path2 = f"{current_dir}/static/files/downloaded/magicrescue/"
         similarity_array = compareSSIM(folder_path1, folder_path2)
         return render_template('dia/phash.html', similarity_array=similarity_array, project_path=project_path)
+    else:
+        return redirect(url_for('diaUpload'))
+
+def getAllImages(folder_path):
+    image_extensions = ['.jpg', '.jpeg', '.png', '.gif', '.bmp']  #If you have more image file extensions you want to include, add them into this
+    
+    image_list = []
+    
+    for root, dirs, files in os.walk(folder_path):
+        for file in files:
+            if os.path.splitext(file)[1].lower() in image_extensions:
+                image_list.append(os.path.join(root, file))
+    
+    return image_list
+
+def getCleanImages(image_list):
+    clean_images_list = []
+    for image in image_list:
+            try:
+                with Image.open(image) as img:
+                    #Check if image can be displayed
+                    img.verify()
+            except IOError:
+                #Image file cannot be opened or displayed
+                continue
+            except SyntaxError:
+                continue
+            else:
+                clean_images_list.append(image)
+
+    return clean_images_list
+
+@app.route('/aperi', methods=['POST'])
+def aperi_solve():
+    image_path = request.form.get('image_path')
+    urls = getAperiSolveURL(image_path)
+    return jsonify(urls)
+
+def getAperiSolveURL(image_path):
+    result = subprocess.run(f"aperisolve {image_path}", capture_output=True, text=True, shell=True)
+    output = str(result)
+    pattern = r"https?://www\.aperisolve\.com/\S+"
+    urls = re.findall(pattern, output)
+    url = urls[0]
+    return url[:-5]
+
+@app.route('/dia_steg')
+def diaSteg():
+    if 'file_name' in session and session['file_name'] is not None:
+        global current_dir
+        image_dir = current_dir + "/static/files/downloaded/"
+        clean_images_list = getCleanImages(getAllImages(image_dir))
+        return render_template('dia/steg.html', clean_images=clean_images_list, project_path=current_dir)
     else:
         return redirect(url_for('diaUpload'))
 

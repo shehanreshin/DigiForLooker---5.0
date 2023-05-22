@@ -14,9 +14,15 @@
     </button>
 
     <button class="mini-card" id="file-cards" onclick="redirectToSSIM()">
-        <div class="mini-card-logo"><i class="fa-solid fa-images"></i></div>
+        <div class="mini-card-logo"><i class="fa-solid fa-sun"></i></div>
         <div class="mini-card-title" id="file_name">SSIM</div>
         <div class="mini-card-details">This compares factors in the images such as contrast and luminance, and returns the pairs that have a similarity of 90% or higher</div>
+    </button>
+
+    <button class="mini-card" id="file-cards" onclick="redirectToSteg()">
+        <div class="mini-card-logo"><i class="fa-solid fa-eye-slash"></i></div>
+        <div class="mini-card-title" id="file_name">Steganography Analysis</div>
+        <div class="mini-card-details">This sends the images through Aperi'Solve, a web application that can be used to perform steganography analysis</div>
     </button>
 
     <script>
@@ -26,6 +32,10 @@
         }
         function redirectToSSIM() {
             var url = "/dia_ssim";
+            window.location.href = url;
+        }
+        function redirectToSteg() {
+            var url = "/dia_steg";
             window.location.href = url;
         }
     </script>

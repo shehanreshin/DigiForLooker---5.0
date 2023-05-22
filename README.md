@@ -60,7 +60,31 @@ docker ps -a
 ```
 
 If all 3 of your containers are running, you are good to go. If not, you might need to delete the
-containers and retry the installation process. Now, go to app/views.py and paste the OpenAI API key. You can generate this from https://platform.openai.com/account/api-keys. You can also add or remove banners that you want to run in volatility by editing the vol_banners list. Once you're done, save it and then you can enter the command
+containers and retry the installation process. Now you need to install Aperi'Solve. To do this you need to use curl. If curl is not installed, refer to the curl documentation on how to install it on your OS. You can install Curl on Debian based distributions such as Ubuntu using
+
+```
+sudo apt install curl
+```
+
+On Arch Using
+
+```
+sudo pacman -S curl
+```
+
+and on Fedora using
+
+```
+sudo yum install curl
+```
+
+Once that is done, you can enter the command
+
+```
+sudo sh -c "$(curl -fs https://www.aperisolve.com/install.sh)"
+```
+
+to install Aperi'Solve. Now, go to app/views.py and paste the OpenAI API key. You can generate this from https://platform.openai.com/account/api-keys. You can also add or remove banners that you want to run in volatility by editing the vol_banners list. Once you're done, save it and then you can enter the command
 
 ```
 python3 run.py
@@ -69,3 +93,5 @@ python3 run.py
 to start up the Flask server. If there are any issues, the server will most likely not start. If it starts,
 congratulations! The installation process is done. You can visit the link highlighted in the terminal
 to access DigiForLooker. It is highly recommended that you stop and start the Flask server everytime you want to upload a file. You can get some sample files for testing from the following link: https://liveplymouthac-my.sharepoint.com/:f:/g/personal/10673843_students_plymouth_ac_uk/EgDVTW3fb29PhovY-c4nEVgBxxiilM80bWI3d7es4BuAFg?e=thK140
+
+If you run into any issues during the installation process and cannot find a solution, feel free to contact me. I'll do my best to be of assistance.
