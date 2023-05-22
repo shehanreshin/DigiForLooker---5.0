@@ -1,0 +1,44 @@
+{% extends 'base_template.html' %}
+
+{% block csslink %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/dia/phash.css') }}">
+{% endblock %}
+
+{% block mainbody %}
+{% if session['file_name'] is not none %}
+
+    {% for array in metadata_array %}
+        <div class="title">{{ array[0] }}%</div>
+        <div class="text-container">
+            {% for data in array[1] %}
+            <div class="line">ExifTool Version: {{ data['ExifToolVersion'] }}</div>
+            <div class="line">Source File: {{ data['SourceFile'] }}</div>
+            <div class="line">File Name: {{ data['FileName'] }}</div>
+            <div class="line">Directory: {{ data['Directory'] }}</div>
+            <div class="line">File Size: {{ data['FileSize'] }}</div>
+            <div class="line">File Modify Date: {{ data['FileModifyDate'] }}</div>
+            <div class="line">File Access Date: {{ data['FileAccessDate'] }}</div>
+            <div class="line">File Inode Change Date: {{ data['FileInodeChangeDate'] }}</div>
+            <div class="line">File Permissions: {{ data['FilePermissions'] }}</div>
+            <div class="line">File Type: {{ data['FileType'] }}</div>
+            <div class="line">File Type Extension: {{ data['FileTypeExtension'] }}</div>
+            <div class="line">MIME Type: {{ data['MIMEType'] }}</div>
+            <div class="line">Image Width: {{ data['ImageWidth'] }}</div>
+            <div class="line">Image Height: {{ data['ImageHeight'] }}</div>
+            <div class="line">Bit Depth: {{ data['BitDepth'] }}</div>
+            <div class="line">Color Type: {{ data['ColorType'] }}</div>
+            <div class="line">Compression: {{ data['Compression'] }}</div>
+            <div class="line">Filter: {{ data['Filter'] }}</div>
+            <div class="line">Interlace: {{ data['Interlace'] }}</div>
+            <div class="line">Warning: {{ data['Warning'] }}</div>
+            <div class="line">Image Size: {{ data['ImageSize'] }}</div>
+            <div class="line">Megapixels: {{ data['Megapixels'] }}</div>
+            {% endfor %}
+        </div>
+        <br><br>
+    {% endfor %}
+
+{% else %}
+    <h1>Hello</h1>
+{% endif%}
+{% endblock %}

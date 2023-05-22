@@ -25,6 +25,12 @@
         <div class="mini-card-details">This sends the images through Aperi'Solve, a web application that can be used to perform steganography analysis</div>
     </button>
 
+    <button class="mini-card" id="file-cards" onclick="redirectToMetadata()">
+        <div class="mini-card-logo"><i class="fa-solid fa-circle-info"></i></div>
+        <div class="mini-card-title" id="file_name">Metadata Extraction</div>
+        <div class="mini-card-details">This sends the images through ExifTool, which returns and displays the extracted metadata of the supported files</div>
+    </button>
+
     <script>
         function redirectToPHash() {
             var url = "/dia_phash";
@@ -36,6 +42,10 @@
         }
         function redirectToSteg() {
             var url = "/dia_steg";
+            window.location.href = url;
+        }
+        function redirectToMetadata() {
+            var url = "/dia_metadata";
             window.location.href = url;
         }
     </script>

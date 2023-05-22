@@ -612,6 +612,61 @@ def diaSteg():
     else:
         return redirect(url_for('diaUpload'))
 
+def extractMetadata(docker_paths, removed_path_part):
+    metadata_array = []
+    container_list = ['kalisc', 'kalibe', 'kalimr']
+
+    def extractMetadataForPath(path):
+        file_name = os.path.basename(path)
+        if file_name.endswith(('.jpg', '.png', '.pdf', '.docx')):
+            for container in container_list:
+                command = f'docker exec {container} exiftool -j {path}'
+                try:
+                    metadata = subprocess.check_output(command, shell=True, universal_newlines=True)
+                except subprocess.CalledProcessError as e:
+                    #Unsupported file type error handling
+                    continue
+                else:
+                    local_file_path = os.path.join(removed_path_part, path.replace('/data/', ''))
+                    metadata_array.append([local_file_path, metadata])
+
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        executor.map(extractMetadataForPath, docker_paths)
+
+    return metadata_array
+
+def getAllFiles(folder_path):
+    file_list = []
+    for root, dirs, files in os.walk(folder_path):
+        for file_name in files:
+            file_path = os.path.join(root, file_name)
+            file_list.append(file_path)
+    return file_list
+
+@app.route('/dia_metadata')
+def diaMetadata():
+    if 'file_name' in session and session['file_name'] is not None:
+        
+        project_dir = os.path.dirname(os.path.abspath(__file__))
+        folder_path = f"{project_dir}/static/files/downloaded/"
+        docker_path = f"/data/"
+        removed_path_part = f"{project_dir}/static/files/"
+
+        subprocess.run(f"sudo cp -r {folder_path} {project_dir}/static/files/uploaded/", shell=True)
+        time.sleep(5)
+
+        files = getAllFiles(folder_path)
+        docker_paths = []
+
+        for file_path in files:
+            docker_file_path = docker_path + file_path.replace(removed_path_part, '')
+            docker_paths.append(docker_file_path)
+
+        metadata_array = extractMetadata(docker_paths, removed_path_part)
+        return render_template('dia/metadata.html', metadata_array=metadata_array, project_path=project_dir)
+    else:
+        return redirect(url_for('diaUpload'))
+
 #---------------------------------x---------------------x-----------Disk Image Analysis----------x---------------------x----------------------------------
 
 
@@ -632,6 +687,8 @@ def cleanseProject():
     subprocess.run(f"sudo rm -rf {os.path.abspath(os.path.dirname(__file__))}/static/files/downloaded/bulkextractor", shell=True)
     subprocess.run(f"sudo rm -rf {os.path.abspath(os.path.dirname(__file__))}/static/files/downloaded/scalpel", shell=True)
     subprocess.run(f"sudo rm -rf {os.path.abspath(os.path.dirname(__file__))}/static/files/downloaded/magicrescue", shell=True)
+    if os.path.exists(f"{os.path.abspath(os.path.dirname(__file__))}/static/files/uploaded/downloaded/"):
+        subprocess.run(f"sudo rm -rf {os.path.abspath(os.path.dirname(__file__))}/static/files/uploaded/downloaded", shell=True)
     subprocess.run(f"find {os.path.abspath(os.path.dirname(__file__))}/static/files/uploaded/ -type f ! -name '.gitkeep' -exec rm " + "{} +" , shell=True)
     subprocess.run(f"find {os.path.abspath(os.path.dirname(__file__))}/static/files/downloaded/volatility/ -type f ! -name '.gitkeep' -exec rm " + "{} +" , shell=True)
     subprocess.run(f"find {os.path.abspath(os.path.dirname(__file__))}/templates/mda/data/ -type f ! -name '.gitkeep' -exec rm " + "{} +" , shell=True)
