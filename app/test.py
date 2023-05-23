@@ -1,6 +1,35 @@
 import os
 import subprocess
 from concurrent.futures import ThreadPoolExecutor
+import json
+import ast
+
+def createDictFromString(string):
+    # Remove leading/trailing whitespace and surrounding curly braces
+    string = string.strip().strip('{}')
+
+    data = {}
+    pairs = string.split(',\n')
+    for pair in pairs:
+        key_value = pair.split(': ')
+        key = key_value[0].strip().strip('"')
+        value = key_value[1].strip().strip('"')
+        if value.startswith('[') and value.endswith(']'):
+            # Handle array-like values by splitting on comma
+            value = value[1:-1].split(', ')
+        elif '.' in value:
+            try:
+                value = float(value)
+            except ValueError:
+                pass
+        else:
+            try:
+                value = int(value)
+            except ValueError:
+                pass
+        data[key] = value
+    return data
+
 
 def extractMetadata(docker_paths, removed_path_part):
     metadata_array = []
@@ -18,7 +47,10 @@ def extractMetadata(docker_paths, removed_path_part):
                     continue
                 else:
                     local_file_path = os.path.join(removed_path_part, path.replace('/data/', ''))
-                    metadata_array.append([path, metadata])
+                    formatted_metadata = metadata.replace("[{", '')
+                    formatted_metadata = formatted_metadata.replace("}]", '')
+                    data = createDictFromString(formatted_metadata)
+                    metadata_array.append([path, data])
 
     with ThreadPoolExecutor() as executor:
         executor.map(extractMetadataForPath, docker_paths)
@@ -49,5 +81,10 @@ for file_path in files:
     docker_paths.append(docker_file_path)
 
 metadata_array = extractMetadata(docker_paths, removed_path_part)
-for item in metadata_array:
-    print(type(item[1]))
+item = metadata_array[0]
+print(type(item))
+data = item[1]
+print(type(data))
+print(f'FileName: {data.get("FileName")}')
+print(f'Compression: {data.get("Compression")}')
+print(f'PixelUnits: {data.get("PixelUnits")}')

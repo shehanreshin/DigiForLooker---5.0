@@ -33,7 +33,7 @@ original_hash = {}
 #Each of the banners extracts a data from the memory dump that fits a specific criteria or context
 #Feel free to remove banners from this list as you please. The lesser the banners, the faster the execution time
 #vol_banners = ["configwriter.ConfigWriter","frameworkinfo.FrameworkInfo","isfinfo.IsfInfo","layerwriter.LayerWriter","linux.bash.Bash","linux.check_afinfo.Check_afinfo","linux.check_creds.Check_creds","linux.check_idt.Check_idt","linux.check_modules.Check_modules","linux.check_syscall.Check_syscall","linux.elfs.Elfs","linux.envars.Envars","linux.iomem.IOMem","linux.keyboard_notifiers.Keyboard_notifiers","linux.kmsg.Kmsg","linux.lsmod.Lsmod","linux.lsof.Lsof","linux.malfind.Malfind","linux.mountinfo.MountInfo","linux.proc.Maps","linux.psaux.PsAux","linux.pslist.PsList","linux.psscan.PsScan","linux.pstree.PsTree","linux.sockstat.Sockstat","linux.tty_check.tty_check","mac.bash.Bash","mac.check_syscall.Check_syscall","mac.check_sysctl.Check_sysctl","mac.check_trap_table.Check_trap_table","mac.ifconfig.Ifconfig","mac.kauth_listeners.Kauth_listeners","mac.kauth_scopes.Kauth_scopes","mac.kevents.Kevents","mac.list_files.List_Files","mac.lsmod.Lsmod","mac.lsof.Lsof","mac.malfind.Malfind","mac.mount.Mount","mac.netstat.Netstat","mac.proc_maps.Maps","mac.psaux.Psaux","mac.pslist.PsList","mac.pstree.PsTree","mac.socket_filters.Socket_filters","mac.timers.Timers","mac.trustedbsd.Trustedbsd","mac.vfsevents.VFSevents","timeliner.Timeliner","windows.bigpools.BigPools","windows.callbacks.Callbacks","windows.cmdline.CmdLine","windows.crashinfo.Crashinfo","windows.devicetree.DeviceTree","windows.dlllist.DllList","windows.driverirp.DriverIrp","windows.drivermodule.DriverModule","windows.driverscan.DriverScan","windows.dumpfiles.DumpFiles","windows.envars.Envars","windows.filescan.FileScan","windows.getservicesids.GetServiceSIDs","windows.getsids.GetSIDs","windows.handles.Handles","windows.info.Info","windows.joblinks.JobLinks","windows.ldrmodules.LdrModules","windows.malfind.Malfind","windows.mbrscan.MBRScan","windows.memmap.Memmap","windows.modscan.ModScan","windows.modules.Modules","windows.mutantscan.MutantScan","windows.poolscanner.PoolScanner","windows.privileges.Privs","windows.pslist.PsList","windows.psscan.PsScan","windows.pstree.PsTree","windows.registry.certificates.Certificates","windows.registry.hivelist.HiveList","windows.registry.hivescan.HiveScan","windows.registry.printkey.PrintKey","windows.registry.userassist.UserAssist","windows.sessions.Sessions","windows.ssdt.SSDT","windows.statistics.Statistics","windows.strings.Strings","windows.symlinkscan.SymlinkScan","windows.vadinfo.VadInfo","windows.vadwalk.VadWalk","windows.virtmap.VirtMap"]
-vol_banners = ["windows.registry.printkey","windows.registry.userassist","windows.sessions","windows.ssdt","windows.statistics","windows.strings","windows.symlinkscan","windows.vadinfo","windows.vadwalk","windows.virtmap","windows.dlllist"]
+vol_banners = ["windows.registry.printkey","windows.registry.userassist","windows.sessions","windows.ssdt","windows.statistics","windows.symlinkscan","windows.vadinfo","windows.vadwalk","windows.virtmap","windows.dlllist"]
 
 def uploadVol(file_path):
     global current_dir
@@ -612,6 +612,31 @@ def diaSteg():
     else:
         return redirect(url_for('diaUpload'))
 
+def createDictFromString(string):
+    string = string.strip().strip('{}')
+
+    data = {}
+    pairs = string.split(',\n')
+    for pair in pairs:
+        key_value = pair.split(': ')
+        key = key_value[0].strip().strip('"')
+        value = key_value[1].strip().strip('"')
+        if value.startswith('[') and value.endswith(']'):
+            value = value[1:-1].split(', ')
+        elif '.' in value:
+            try:
+                value = float(value)
+            except ValueError:
+                pass
+        else:
+            try:
+                value = int(value)
+            except ValueError:
+                pass
+        data[key] = value
+    return data
+
+
 def extractMetadata(docker_paths, removed_path_part):
     metadata_array = []
     container_list = ['kalisc', 'kalibe', 'kalimr']
@@ -628,7 +653,10 @@ def extractMetadata(docker_paths, removed_path_part):
                     continue
                 else:
                     local_file_path = os.path.join(removed_path_part, path.replace('/data/', ''))
-                    metadata_array.append([local_file_path, metadata])
+                    formatted_metadata = metadata.replace("[{", '')
+                    formatted_metadata = formatted_metadata.replace("}]", '')
+                    data = createDictFromString(formatted_metadata)
+                    metadata_array.append([path, data])
 
     with concurrent.futures.ThreadPoolExecutor() as executor:
         executor.map(extractMetadataForPath, docker_paths)

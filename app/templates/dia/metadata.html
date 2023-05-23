@@ -1,42 +1,163 @@
 {% extends 'base_template.html' %}
 
 {% block csslink %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/dia/phash.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/dia/metadata.css') }}">
 {% endblock %}
 
 {% block mainbody %}
 {% if session['file_name'] is not none %}
 
-    {% for array in metadata_array %}
-        <div class="title">{{ array[0] }}%</div>
-        <div class="text-container">
-            {% for data in array[1] %}
-            <div class="line">ExifTool Version: {{ data['ExifToolVersion'] }}</div>
-            <div class="line">Source File: {{ data['SourceFile'] }}</div>
-            <div class="line">File Name: {{ data['FileName'] }}</div>
-            <div class="line">Directory: {{ data['Directory'] }}</div>
-            <div class="line">File Size: {{ data['FileSize'] }}</div>
-            <div class="line">File Modify Date: {{ data['FileModifyDate'] }}</div>
-            <div class="line">File Access Date: {{ data['FileAccessDate'] }}</div>
-            <div class="line">File Inode Change Date: {{ data['FileInodeChangeDate'] }}</div>
-            <div class="line">File Permissions: {{ data['FilePermissions'] }}</div>
-            <div class="line">File Type: {{ data['FileType'] }}</div>
-            <div class="line">File Type Extension: {{ data['FileTypeExtension'] }}</div>
-            <div class="line">MIME Type: {{ data['MIMEType'] }}</div>
-            <div class="line">Image Width: {{ data['ImageWidth'] }}</div>
-            <div class="line">Image Height: {{ data['ImageHeight'] }}</div>
-            <div class="line">Bit Depth: {{ data['BitDepth'] }}</div>
-            <div class="line">Color Type: {{ data['ColorType'] }}</div>
-            <div class="line">Compression: {{ data['Compression'] }}</div>
-            <div class="line">Filter: {{ data['Filter'] }}</div>
-            <div class="line">Interlace: {{ data['Interlace'] }}</div>
-            <div class="line">Warning: {{ data['Warning'] }}</div>
-            <div class="line">Image Size: {{ data['ImageSize'] }}</div>
-            <div class="line">Megapixels: {{ data['Megapixels'] }}</div>
-            {% endfor %}
-        </div>
-        <br><br>
-    {% endfor %}
+<table class="current-hash-table">
+    <thead>
+        <tr>
+            <th style="width: 25vw;">Source File</th>
+            <th style="width: 15vw;">File Name</th>
+            <th style="width: 7vw;">File Size</th>
+            <th>File Modify Date</th>
+            <th>File Access Date</th>
+            <th>File Inode Change Date</th>
+            <th>File Type</th>
+            <th>MIME Type</th>
+            <th style="width: 5vw;">Image Width</th>
+            <th style="width: 5vw;">Image Height</th>
+            <th style="width: 3vw;">Bit Depth</th>
+            <th>Color Type</th>
+            <th>Compression</th>
+            <th>Filter</th>
+            <th>Interlace</th>
+            <th>Warning</th>
+            <th>Image Size</th>
+            <th style="width: 3vw;">Megapixels</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for array in metadata_array %}
+            {% set data = array[1] %}
+            <tr>
+                <td>{{ array[0] }}</td>
+                <td>
+                {% if data.get('FileName', '') %}
+                    {{ data['FileName'] }}
+                {% else %}
+                    None
+                {% endif %}
+                </td>
+                <td>
+                {% if data.get('FileSize', '') %}
+                    {{ data['FileSize'] }}
+                {% else %}
+                    None
+                {% endif %}
+                </td>
+                <td>
+                {% if data.get('FileModifyDate', '') %}
+                    {{ data['FileModifyDate'] }}
+                {% else %}
+                    None
+                {% endif %}
+                </td>
+                <td>
+                {% if data.get('FileAccessDate', '') %}
+                    {{ data['FileAccessDate'] }}
+                {% else %}
+                    None
+                {% endif %}
+                </td>
+                <td>
+                {% if data.get('FileInodeChangeDate', '') %}
+                    {{ data['FileInodeChangeDate'] }}
+                {% else %}
+                    None
+                {% endif %}
+                </td>
+                <td>
+                {% if data.get('FileType', '') %}
+                    {{ data['FileType'] }}
+                {% else %}
+                    None
+                {% endif %}
+                </td>
+                <td>
+                {% if data.get('MIMEType', '') %}
+                    {{ data['MIMEType'] }}
+                {% else %}
+                    None
+                {% endif %}
+                </td>
+                <td>
+                {% if data.get('ImageWidth', '') %}
+                    {{ data['ImageWidth'] }}
+                {% else %}
+                    None
+                {% endif %}
+                </td>
+                <td>
+                {% if data.get('ImageHeight', '') %}
+                    {{ data['ImageHeight'] }}
+                {% else %}
+                    None
+                {% endif %}
+                </td>
+                <td>
+                {% if data.get('BitDepth', '') %}
+                    {{ data['BitDepth'] }}
+                {% else %}
+                    None
+                {% endif %}
+                </td>
+                <td>
+                {% if data.get('ColorType', '') %}
+                    {{ data['ColorType'] }}
+                {% else %}
+                    None
+                {% endif %}
+                </td>
+                <td>
+                {% if data.get('Compression', '') %}
+                    {{ data['Compression'] }}
+                {% else %}
+                    None
+                {% endif %}
+                </td>
+                <td>
+                {% if data.get('Filter', '') %}
+                    {{ data['Filter'] }}
+                {% else %}
+                    None
+                {% endif %}
+                </td>
+                <td>
+                {% if data.get('Interlace', '') %}
+                    {{ data['Interlace'] }}
+                {% else %}
+                    None
+                {% endif %}
+                </td>
+                <td>
+                {% if data.get('Warning', '') %}
+                    {{ data['Warning'] }}
+                {% else %}
+                    None
+                {% endif %}
+                </td>
+                <td>
+                {% if data.get('ImageSize', '') %}
+                    {{ data['ImageSize'] }}
+                {% else %}
+                    None
+                {% endif %}
+                </td>
+                <td>
+                {% if data.get('Megapixels', '') %}
+                    {{ data['Megapixels'] }}
+                {% else %}
+                    None
+                {% endif %}
+                </td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
 
 {% else %}
     <h1>Hello</h1>
