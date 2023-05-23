@@ -31,6 +31,12 @@
         <div class="mini-card-details">This sends the images through ExifTool, which returns and displays the extracted metadata of the supported files</div>
     </button>
 
+    <button class="mini-card" id="file-cards" onclick="redirectToIPInfo()">
+        <div class="mini-card-logo"><i class="fa-solid fa-globe"></i></div>
+        <div class="mini-card-title" id="file_name">IP Information</div>
+        <div class="mini-card-details">This sends the IP address extracted earlier, through WhoIs, which returns and displays the further information about the IPs that are available to the general public</div>
+    </button>
+
     <script>
         function redirectToPHash() {
             var url = "/dia_phash";
@@ -46,6 +52,10 @@
         }
         function redirectToMetadata() {
             var url = "/dia_metadata";
+            window.location.href = url;
+        }
+        function redirectToIPInfo() {
+            var url = "/dia_ipinfo";
             window.location.href = url;
         }
     </script>

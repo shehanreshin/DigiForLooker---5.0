@@ -1,0 +1,30 @@
+{% extends 'base_template.html' %}
+
+{% block csslink %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/dia/ipinfo.css') }}">
+{% endblock %}
+
+{% block mainbody %}
+{% if session['file_name'] is not none %}
+
+<table class="current-hash-table">
+    <thead>
+        <tr>
+            <th>IP Address</th>
+            <th>Information</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for ip, info in ip_info %}
+            <tr>
+                <td>{{ ip }}</td>
+                <td>{{ info }}</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% else %}
+    <h1>Hello</h1>
+{% endif%}
+{% endblock %}

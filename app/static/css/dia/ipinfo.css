@@ -1,0 +1,32 @@
+table {
+    border-collapse: collapse;
+    width: 100%;
+}
+table td{
+    max-width: 80vw;
+    word-break: break-all;
+}
+
+.current-hash-table{
+    border-collapse: collapse;
+    font-size: 0.9em;
+    font-family: sans-serif;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+}
+.current-hash-table thead tr{
+    background-color: #039590;
+    color: #F1F1E6;
+    text-align: left;
+}
+.current-hash-table th,
+.current-hash-table td{
+    padding: 12px 15px;
+}
+.current-hash-table tbody tr{
+    border-bottom: 2px solid #039590;
+}
+
+.current-hash-table tbody tr{
+    background-color: #2F4858;
+    color: #F1F1E6;
+}

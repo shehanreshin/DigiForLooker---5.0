@@ -4,7 +4,7 @@ from flask_wtf import FlaskForm
 from wtforms import FileField, SubmitField
 from werkzeug.utils import secure_filename
 import os, re, subprocess, atexit, shutil, threading, docker, hashlib, multiprocessing
-import ujson, json, requests, openai, time, glob, imagehash, concurrent.futures
+import ujson, json, requests, openai, time, glob, imagehash, concurrent.futures, whois
 import numpy as np
 from skimage.metrics import structural_similarity as ssim
 from PIL import Image
@@ -692,6 +692,30 @@ def diaMetadata():
 
         metadata_array = extractMetadata(docker_paths, removed_path_part)
         return render_template('dia/metadata.html', metadata_array=metadata_array, project_path=project_dir)
+    else:
+        return redirect(url_for('diaUpload'))
+
+def extractIPInfo(filename):
+    ip_info = []
+    
+    with open(filename, 'r') as file:
+        for line in file:
+            line = line.strip()
+            if line.startswith('n='):
+                parts = line.split('\t')
+                ip_address = parts[1]
+                output = whois.whois(ip_address)
+                ip_info.append([ip_address, str(output)])
+    
+    return ip_info
+
+@app.route('/dia_ipinfo')
+def diaIPInfo():
+    if 'file_name' in session and session['file_name'] is not None:
+        global current_dir
+        filename = f'{current_dir}/static/files/downloaded/bulkextractor/ip_histogram.txt'
+        ip_info = extractIPInfo(filename)
+        return render_template('dia/ipinfo.html', ip_info=ip_info)
     else:
         return redirect(url_for('diaUpload'))
 
